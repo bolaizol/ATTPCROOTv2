@@ -1,5 +1,5 @@
-void runreco_sim
-(TString mcFile = "output_digi_10Be_aaHe6.root",
+void rundigi_sim
+(TString mcFile = "./data/attpcsim_proto.root",
  TString digiParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/parameters/ATTPC.e15250_sim.par",
  TString mapParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/scripts/scripts/Lookup20150611.xml",
  TString trigParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/parameters/AT.trigger.par")
@@ -20,8 +20,7 @@ void runreco_sim
   // __ Run ____________________________________________
   FairRunAna* fRun = new FairRunAna();
               fRun -> SetInputFile(mcFile);
-              fRun -> SetGeomFile("/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/geometry/ATTPC_He1bar_geomanager.root");
-              fRun -> SetOutputFile("output_digi_10Be_aaHe6_PRA.root");
+              fRun -> SetOutputFile("output_digi.root");
 
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -34,16 +33,36 @@ void runreco_sim
 
   // __ AT digi tasks___________________________________
 
+      ATClusterizeTask* clusterizer = new ATClusterizeTask();
+      clusterizer -> SetPersistence(kFALSE);
+
+      ATPulseTask* pulse = new ATPulseTask();
+      pulse -> SetPersistence(kTRUE);
+      //pulse -> SetSaveMCInfo();
+
+      ATPSATask *psaTask = new ATPSATask();
+      psaTask -> SetPersistence(kTRUE);
+      psaTask -> SetThreshold(10);
+      //psaTask -> SetPSAMode(1); //NB: 1 is ATTPC - 2 is pATTPC
+      psaTask -> SetPSAMode(1); //FULL mode
+      //psaTask -> SetPeakFinder(); //NB: Use either peak finder of maximum finder but not both at the same time
+      psaTask -> SetMaxFinder();
+      psaTask -> SetBaseCorrection(kFALSE); //Directly apply the base line correction to the pulse amplitude to correct for the mesh induction. If false the correction is just saved
+      psaTask -> SetTimeCorrection(kFALSE); //Interpolation around the maximum of the signal peak
+
+      //ATPRATask *praTask = new ATPRATask();
+      //praTask -> SetPersistence(kTRUE);
+
+      /*ATTriggerTask *trigTask = new ATTriggerTask();
+      trigTask  ->  SetAtMap(mapParFile);
+      trigTask  ->  SetPersistence(kTRUE);*/   
 
 
-      ATPRATask *praTask = new ATPRATask();
-      praTask -> SetPersistence(kTRUE);
-
-      ATFitterTask *fitterTask = new ATFitterTask();
-      fitterTask -> SetPersistence(kTRUE);  
-
-  fRun -> AddTask(praTask);
-  fRun -> AddTask(fitterTask);
+  fRun -> AddTask(clusterizer);
+  fRun -> AddTask(pulse);
+  //fRun -> AddTask(psaTask);
+  //fRun -> AddTask(praTask);
+  //fRun -> AddTask(trigTask);
  
 
   // __ Init and run ___________________________________

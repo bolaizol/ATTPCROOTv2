@@ -14,12 +14,17 @@ class ATHitCluster : public ATHit
 {
   public:
     ATHitCluster();
-    virtual ~ATHitCluster() {}
+    ATHitCluster(ATHitCluster *cluster);
+    ~ATHitCluster() {}
 
     void Clear(Option_t * = "");
 
     void SetCovMatrix(TMatrixD matrix);  ///< Set covariance matrix
     TMatrixD   GetCovMatrix() const;     ///< Get covariance matrix
+    void SetPOCA(TVector3 p);
+    TVector3 GetPOCA();
+    void SetLength(Double_t length);
+    Double_t GetLength();
 
   protected:
     TMatrixD fCovMatrix;                  ///< Cluster covariance matrix

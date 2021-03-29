@@ -1,4 +1,4 @@
-void Be12_pp_sim(Int_t nEvents = 2, TString mcEngine = "TGeant4")
+void Be12_pp_sim_genfitTest(Int_t nEvents = 100, TString mcEngine = "TGeant4")
 {
 
   TString dir = getenv("VMCWORKDIR");
@@ -141,7 +141,7 @@ void Be12_pp_sim(Int_t nEvents = 2, TString mcEngine = "TGeant4")
           	  Pyp.push_back(0.0);
           	  Pzp.push_back(0.0);
           	  Mass.push_back(12.026922);
-          	  ExE.push_back(2.251);
+          	  ExE.push_back(0.0);
 
 
                   // ---- Recoil -----
@@ -155,8 +155,8 @@ void Be12_pp_sim(Int_t nEvents = 2, TString mcEngine = "TGeant4")
 		  ExE.push_back(0.0);//In MeV
 
 
-                  Double_t ThetaMinCMS = 5.0;
-                  Double_t ThetaMaxCMS = 50.0;
+                  Double_t ThetaMinCMS = 19.6;
+                  Double_t ThetaMaxCMS = 19.8;
 
 
         ATTPC2Body* TwoBody = new ATTPC2Body("TwoBody",&Zp,&Ap,&Qp,mult,&Pxp,&Pyp,&Pzp,&Mass,&ExE,ResEner, ThetaMinCMS,ThetaMaxCMS);

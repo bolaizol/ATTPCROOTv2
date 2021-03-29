@@ -21,10 +21,12 @@ namespace ATFITTER{
             virtual ~ATFitter();
             //virtual std::vector<ATTrack> GetFittedTrack() = 0;
             virtual bool FitTracks(ATPatternEvent &patternEvent) = 0;
+            virtual void Init()=0;
 
 	  protected:
-            FairLogger *fLogger;      ///< logger pointer
-            ATDigiPar *fPar;          ///< parameter container
+            FairLogger *fLogger;       								   ///< logger pointer
+            ATDigiPar  *fPar;                                                                      ///< parameter container
+            std::tuple<Double_t,Double_t>   GetMomFromBrho(Double_t A, Double_t Z, Double_t brho); ///< Returns momentum (in GeV) from Brho assuming M (amu) and Z;
             
 
             ClassDef(ATFitter, 1)

@@ -11,6 +11,24 @@ ATHitCluster::ATHitCluster()
   Clear();
 }
 
+ATHitCluster::ATHitCluster(ATHitCluster *cluster)
+{
+  fIsClustered = cluster -> IsClustered();
+  fClusterID = cluster -> GetClusterID();
+  fTrackID = cluster -> GetTrackID();
+  
+  fCovMatrix.ResizeTo(3, 3);
+  fCovMatrix = cluster -> GetCovMatrix();
+  fCharge  = cluster -> GetCharge();
+  fLength = cluster->GetLength();
+
+  SetPOCA(cluster -> GetPOCA());
+  SetPosition(cluster -> GetPosition());
+  SetTimeStamp(cluster -> GetTimeStamp());
+  SetPosSigma(cluster->GetPosSigma());
+
+}
+
 void ATHitCluster::Clear(Option_t *)
 {
 
@@ -37,5 +55,15 @@ void ATHitCluster::Clear(Option_t *)
 }
 
 void     ATHitCluster::SetCovMatrix(TMatrixD matrix) { fCovMatrix = matrix; }
+void     ATHitCluster::SetLength(Double_t length)    { fLength = length;} 
+void     ATHitCluster::SetPOCA(TVector3 p)
+{
+  fPOCAX = p.X();
+  fPOCAY = p.Y();
+  fPOCAZ = p.Z();
+}
+
+TVector3 ATHitCluster::GetPOCA()                     { return TVector3(fPOCAX, fPOCAY, fPOCAZ); }
+Double_t ATHitCluster::GetLength()                   { return fLength; }
 TMatrixD ATHitCluster::GetCovMatrix()         const  { return fCovMatrix; }
 

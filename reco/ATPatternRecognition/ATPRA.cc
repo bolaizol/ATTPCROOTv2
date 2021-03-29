@@ -162,20 +162,20 @@ void ATPATTERN::ATPRA::SetTrackInitialParameters(ATTrack& track)
 
 void ATPATTERN::ATPRA::Clusterize(ATTrack& track)
 {
-        std::cout<<" ================================================================= "<<"\n";
-        std::cout<<" Clusterizing track : "<<track.GetTrackID()<<"\n"; 
+        //std::cout<<" ================================================================= "<<"\n";
+        //std::cout<<" Clusterizing track : "<<track.GetTrackID()<<"\n"; 
         std::vector<ATHit>* hitArray = track.GetHitArray();
         std::vector<ATHit> hitTBArray;
         int clusterID = 0;
 
-        for(auto iHits=0;iHits<hitArray->size();++iHits)
+        /*for(auto iHits=0;iHits<hitArray->size();++iHits)
 	  {
 	    TVector3 pos    = hitArray->at(iHits).GetPosition();
             double Q = hitArray->at(iHits).GetCharge();
             int TB          = hitArray->at(iHits).GetTimeStamp();
 	    std::cout<<" Pos : "<<pos.X()<<" - "<<pos.Y()<<" - "<<pos.Z()<<" - TB : "<<TB<<" - Charge : "<<Q<<"\n";	
 
-	  }        
+	  }*/       
                
 
 	  for(auto iTB=0;iTB<512;++iTB){
@@ -191,13 +191,21 @@ void ATPATTERN::ATPRA::Clusterize(ATTrack& track)
 		  std::shared_ptr<ATHitCluster> hitCluster = std::make_shared<ATHitCluster>();
                   hitCluster->SetIsClustered();
                   hitCluster->SetClusterID(clusterID);
-                  Double_t hitQ = 0.0;//std::accumulate(hitTBArray.begin(), hitTBArray.end(), 0.0,[&](double sum,ATHit& hit){ return sum+hit.GetCharge();});
+                  Double_t hitQ = 0.0;
                   std::for_each(hitTBArray.begin(),hitTBArray.end(), [&x,&y,&hitQ](ATHit& hit){ TVector3 pos = hit.GetPosition();x+=pos.X()*hit.GetCharge();y+=pos.Y()*hit.GetCharge();hitQ+=hit.GetCharge();});
                   x/=hitQ;
                   y/=hitQ;
                   hitCluster->SetCharge(hitQ);
                   hitCluster->SetPosition(x,y,hitTBArray.at(0).GetPosition().Z());
                   hitCluster->SetTimeStamp(hitTBArray.at(0).GetTimeStamp());
+                  TMatrixDSym cov(3); //TODO: Setting covariant matrix based on pad size and drift time resolution. Using estimations for the moment.
+                  cov(0,1) = 0;
+                  cov(1,2) = 0;
+                  cov(2,0) = 0;
+                  cov(0,0) = 0.04;
+  	          cov(1,1) = 0.04;
+  		  cov(2,2) = 0.01;
+                  hitCluster->SetCovMatrix(cov);
                   ++clusterID;
                   track.AddClusterHit(hitCluster);
 		  
@@ -207,7 +215,7 @@ void ATPATTERN::ATPRA::Clusterize(ATTrack& track)
           }
 
           //Sanity check
-          std::vector<ATHitCluster>* hitClusterArray = track.GetHitClusterArray();
+          /*std::vector<ATHitCluster>* hitClusterArray = track.GetHitClusterArray();
           std::cout<<" Clusterized hits : "<<hitClusterArray->size()<<"\n";
           for(auto iClusterHits=0;iClusterHits<hitClusterArray->size();++iClusterHits)
 	  {
@@ -216,7 +224,7 @@ void ATPATTERN::ATPRA::Clusterize(ATTrack& track)
             int TB          = hitClusterArray->at(iClusterHits).GetTimeStamp();
 	    std::cout<<" Pos : "<<pos.X()<<" - "<<pos.Y()<<" - "<<pos.Z()<<" - TB : "<<TB<<" - Charge : "<<clusterQ<<"\n";	
 
-	  }
+	  }*/
         
 
 }

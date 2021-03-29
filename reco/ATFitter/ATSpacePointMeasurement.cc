@@ -54,8 +54,8 @@ ATSpacepointMeasurement::ATSpacepointMeasurement(const ATHitCluster *detHit, con
 
   // Forced covariance matrix to be constant. Need to study later.
   cov(0,0) = 0.04;
-  cov(1,1) = 0.01;
-  cov(2,2) = 0.04;
+  cov(1,1) = 0.04;
+  cov(2,2) = 0.01;
 
   rawHitCov_ = cov;
   detId_ = hit -> getDetId();

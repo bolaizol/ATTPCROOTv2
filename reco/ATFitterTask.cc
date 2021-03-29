@@ -32,7 +32,7 @@ ATFitterTask::ATFitterTask()
   fLogger = FairLogger::GetLogger();
   fPar = NULL;
   fIsPersistence = kFALSE;
-  fEventHArray = new TClonesArray("ATEvent");
+  fPatternEventArray = new TClonesArray("ATPatternEvent");
   fFitterAlgorithm = 0;
 
 }
@@ -53,16 +53,16 @@ InitStatus ATFitterTask::Init()
     return kERROR;
   }
 
-  fEventHArray = (TClonesArray *) ioMan -> GetObject("ATEventH");
-    if (fEventHArray == 0) {
-      fLogger -> Error(MESSAGE_ORIGIN, "Cannot find ATEvent array!");
+  fPatternEventArray = (TClonesArray *) ioMan -> GetObject("ATPatternEvent");
+    if (fPatternEventArray == 0) {
+      fLogger -> Error(MESSAGE_ORIGIN, "Cannot find ATPatternEvent array!");
       return kERROR;
-    }
+  }
 
   //Algorithm selection
   
     if (fFitterAlgorithm == 0) {
-      fLogger -> Info(MESSAGE_ORIGIN, "Using GENFIT2");
+      fLogger -> Info(MESSAGE_ORIGIN, "Using GENFIT2!");
 
       fFitter = new ATFITTER::ATGenfit();
 
@@ -97,6 +97,15 @@ void ATFitterTask::SetParContainers()
 
 void ATFitterTask::Exec(Option_t* option)
 {
+
+   if (fPatternEventArray -> GetEntriesFast() == 0)
+    return;
+
+   fFitter->Init();
+
+   ATPatternEvent &patternEvent = *((ATPatternEvent*) fPatternEventArray->At(0));
+
+   fFitter->FitTracks(patternEvent);
 
 }
 

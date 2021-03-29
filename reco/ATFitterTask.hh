@@ -51,7 +51,7 @@ class ATFitterTask : public FairTask {
     Bool_t fIsPersistence;  //!< Persistence check variable
     FairLogger *fLogger;
     ATDigiPar *fPar;
-    TClonesArray *fEventHArray;
+    TClonesArray *fPatternEventArray;
     ATFITTER::ATFitter *fFitter;
     Int_t fFitterAlgorithm;
 

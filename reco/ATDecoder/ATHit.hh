@@ -13,7 +13,7 @@ class ATHit : public TObject {
     ATHit(Int_t hitID, TVector3 vec, Double_t charge);
     ATHit(Int_t hitID, Double_t x, Double_t y, Double_t z, Double_t charge);
     ATHit(Int_t PadNum,Int_t hitID, Double_t x, Double_t y, Double_t z, Double_t charge);
-    ~ATHit();
+    virtual ~ATHit();
 
     struct MCSimPoint
     {
