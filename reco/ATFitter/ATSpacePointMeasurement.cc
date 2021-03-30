@@ -40,7 +40,8 @@ ATSpacepointMeasurement::ATSpacepointMeasurement(const ATHitCluster *detHit, con
 
   rawHitCoords_(0) = pos.X()/10.;
   rawHitCoords_(1) = pos.Y()/10.;
-  rawHitCoords_(2) = pos.Z()/10.;
+  rawHitCoords_(2) = 100.0-pos.Z()/10.;//TODO: Check beam direction.
+ 
 
   TMatrixDSym cov(3);
 
@@ -62,6 +63,9 @@ ATSpacepointMeasurement::ATSpacepointMeasurement(const ATHitCluster *detHit, con
   hitId_ = hit -> getHitId();
 
   fCharge = detHit -> GetCharge();
+
+  std::cout<<" ATSpacepointMeasurement::ATSpacepointMeasurement "<<"\n";
+  std::cout<<rawHitCoords_(0)<<"	"<<rawHitCoords_(1)<<"	  "<<rawHitCoords_(2)<<"	"<<fCharge<<"	"<<detId_<<"	"<<hitId_<<"\n"; 
 
   this -> initG();
 }

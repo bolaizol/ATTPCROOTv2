@@ -1,6 +1,6 @@
 void rundigi_sim
 (TString mcFile = "./data/attpcsim_proto.root",
- TString digiParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/parameters/ATTPC.e15250_sim.par",
+ TString digiParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/parameters/ATTPC.e15250_GENFIT_sim.par",
  TString mapParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/scripts/scripts/Lookup20150611.xml",
  TString trigParFile = "/mnt/simulations/attpcroot/fair_install_2020/yassid/ATTPCROOTv2/parameters/AT.trigger.par")
 {

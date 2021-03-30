@@ -78,7 +78,7 @@ void Be12_pp_sim_genfitTest(Int_t nEvents = 100, TString mcEngine = "TGeant4")
 	          Double_t pz = 2.016/a;  // Z-Momentum / per nucleon!!!!!!
   	          Double_t BExcEner = 0.0;// 
                   Double_t Bmass = 12.026922; //Mass in amu
-                  Double_t NomEnergy = 9.0; 
+                  Double_t NomEnergy = 0.2; 
                   
 
 
@@ -155,8 +155,8 @@ void Be12_pp_sim_genfitTest(Int_t nEvents = 100, TString mcEngine = "TGeant4")
 		  ExE.push_back(0.0);//In MeV
 
 
-                  Double_t ThetaMinCMS = 19.6;
-                  Double_t ThetaMaxCMS = 19.8;
+                  Double_t ThetaMinCMS = 57.9;
+                  Double_t ThetaMaxCMS = 57.9;
 
 
         ATTPC2Body* TwoBody = new ATTPC2Body("TwoBody",&Zp,&Ap,&Qp,mult,&Pxp,&Pyp,&Pzp,&Mass,&ExE,ResEner, ThetaMinCMS,ThetaMaxCMS);

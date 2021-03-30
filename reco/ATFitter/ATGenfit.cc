@@ -96,8 +96,7 @@ void ATFITTER::ATGenfit::SetMaxIterations(Int_t value) {
 bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change return value
 {
 
-  fHitClusterArray -> Delete();
-  genfit::TrackCand trackCand;
+  
   
   std::vector<ATTrack>& patternTrackCand =  patternEvent.GetTrackCand();
 
@@ -109,20 +108,30 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
 	auto hitClusterArray = track.GetHitClusterArray();
 
 
-        if(hitClusterArray->size()>3){// TODO Check minimum number of clusters
+        if(hitClusterArray->size()>3 && !track.GetIsNoise()){// TODO Check minimum number of clusters
+
+	          fHitClusterArray -> Delete();
+                  genfit::TrackCand trackCand;
+
+                  std::reverse(hitClusterArray->begin(),hitClusterArray->end()); // TODO: Reverted to adapt it to simulation
 
                  //Adding clusterized  hits
 		 for (auto cluster : *hitClusterArray) { 
+                    TVector3 pos = cluster.GetPosition(); 
 		    Int_t idx = fHitClusterArray->GetEntriesFast();
 		    new ((*fHitClusterArray)[idx]) ATHitCluster(cluster);
 		    trackCand.addHit(fTPCDetID, idx);
+		    //std::cout<<" Adding  cluster "<<idx<<"\n";
+                    //std::cout<<pos.X()<<"	"<<pos.Y()<<"	"<<pos.Z()<<"\n";
 	  	 }  
 
-		 TVector3 posSeed = hitClusterArray->at(0).GetPosition(); //TODO Check first cluster is the first in time 
+		
+                 TVector3 iniPos = hitClusterArray->front().GetPosition(); //TODO Check first cluster is the first in time 
+		 TVector3 posSeed(iniPos.X(),iniPos.Y(),1000.0-iniPos.Z()); 
 		 posSeed.SetMag(posSeed.Mag()/10.);
 
                  TMatrixDSym covSeed(6);//TODO Check where COV matrix is defined, likely in ATPattern clusterize (hard coded in ATSpacePoint measurement)
-		 TMatrixD covMatrix = hitClusterArray->at(0).GetCovMatrix();
+		 TMatrixD covMatrix = hitClusterArray->front().GetCovMatrix();
 		  for (Int_t iComp = 0; iComp < 3; iComp++)
 		    covSeed(iComp, iComp) = covMatrix(iComp, iComp)/100.;// unit conversion mm2 -> cm2
 		   
@@ -131,12 +140,12 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
   
         
                   //Initial parameters from pattern recognition. For the moment, I just hardcode the paramters for a specific case. Momentum will be determined from BRho.
-                  //Test case 12Be+p elastic 15A MeV, 80 deg, 1.5 MeV, 2 T, 0.17704 Tm
-		  Double_t theta  = 80.0*TMath::DegToRad();//track->GetGeoTheta();
+                  //Test case 12Be+p elastic 15A MeV, 57.9 deg, 12 MeV, 2 T, 0.50215 Tm, mometum 0.150541
+		  Double_t theta  = 57.9*TMath::DegToRad();//track->GetGeoTheta();
                   Double_t radius = 0.0;//track->GetGeoRadius();
-		  Double_t phi    = 0.0;//track->GetGeoPhi();
+		  Double_t phi    = 0.0*TMath::DegToRad();//track->GetGeoPhi();
                  
-		  Double_t brho = 0.17704; //1.5 MeV proton
+		  Double_t brho = 0.50215; //12 MeV proton
                   Double_t p_mass = 1.00727647; //amu
                   Int_t p_Z = 1;
 
@@ -147,6 +156,9 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
                   momSeed.SetPhi(phi); // TODO
                   trackCand.setCovSeed(covSeed);
   		  trackCand.setPosMomSeed(posSeed, momSeed,p_Z);
+                  trackCand.setPdgCode(2212);
+                  trackCand.Print();
+
 
                   genfit::Track *gfTrack = new ((*fGenfitTrackArray)[fGenfitTrackArray -> GetEntriesFast()]) genfit::Track(trackCand, *fMeasurementFactory);
                   gfTrack -> addTrackRep(new genfit::RKTrackRep(2212));// TODO: Forcing proton track representation
@@ -162,8 +174,10 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
 		  try {
 		    fitStatus = gfTrack -> getFitStatus(trackRep);
                     std::cout<<" Is fitted? "<<fitStatus->isFitted()<<"\n";
+                    std::cout<<" Is Converged Partially? "<<fitStatus->isFitConvergedPartially()<<"\n";
+                    fitStatus->Print();
 		  } catch (genfit::Exception &e) {
-		    return 0;
+		    //return 0;
 		  }
 
 		  genfit::MeasuredStateOnPlane fitState;
@@ -172,13 +186,18 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
 	          } catch (genfit::Exception &e) {}
 
 		  
-
+	         
 
 
 
         }//ClusterArray
 
+		 
+
   }//iTrack
+
+    std::cout<<" End of GENFIT "<<"\n";
+    std::cout<<" 		     "<<"\n";
  
 
 
