@@ -24,6 +24,7 @@ ATTrack::ATTrack()
   FitParameters.sThetaMin        = 0;
   FitParameters.sEnerMin         = 0;
   FitParameters.sPosMin.SetXYZ(0,0,0);
+  FitParameters.sMomMin.SetXYZ(0,0,0);
   FitParameters.sBrhoMin         = 0;
   FitParameters.sBMin            = 0;
   FitParameters.sPhiMin          = 0;

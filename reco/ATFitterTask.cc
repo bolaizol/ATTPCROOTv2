@@ -15,6 +15,7 @@
 #include "RKTrackRep.h"
 #include "Exception.h"
 
+
 // STL
 #include <iostream>
 
@@ -33,7 +34,10 @@ ATFitterTask::ATFitterTask()
   fPar = NULL;
   fIsPersistence = kFALSE;
   fPatternEventArray = new TClonesArray("ATPatternEvent");
+  fGenfitTrackArray  = new TClonesArray("genfit::Track");
   fFitterAlgorithm = 0;
+
+  fGenfitTrackVector = new std::vector<genfit::Track>();
 
 }
 
@@ -74,6 +78,9 @@ InitStatus ATFitterTask::Init()
       return kERROR;
     }
 
+   //ioMan -> Register("genfitTrackTCA","ATTPC",fGenfitTrackArray, fIsPersistence);
+   ioMan -> RegisterAny("ATTPC",fGenfitTrackVector, fIsPersistence);
+
 
   return kSUCCESS;
 }
@@ -101,11 +108,47 @@ void ATFitterTask::Exec(Option_t* option)
    if (fPatternEventArray -> GetEntriesFast() == 0)
     return;
 
+   fGenfitTrackArray->Delete();
+   fGenfitTrackVector->clear();
+
    fFitter->Init();
 
    ATPatternEvent &patternEvent = *((ATPatternEvent*) fPatternEventArray->At(0));
 
    fFitter->FitTracks(patternEvent);
+
+   //TODO: Genfit block, add a dynamic cast and a try-catch
+
+    try{
+	   auto genfitTrackArray = dynamic_cast<ATFITTER::ATGenfit*>(fFitter)->GetGenfitTrackArray();
+	   auto genfitTracks = genfitTrackArray->GetEntriesFast();
+    
+  	 for(auto iTrack=0;iTrack<genfitTracks;++iTrack){
+		 new ((*fGenfitTrackArray)[iTrack]) genfit::Track(*static_cast<genfit::Track*>(genfitTrackArray->At(iTrack)));
+                 //auto trackTest = *static_cast<genfit::Track*>(genfitTrackArray->At(iTrack));
+                 //trackTest.Print();
+                 //genfit::MeasuredStateOnPlane fitState = trackTest.getFittedState();
+                 //fitState.Print();
+                 fGenfitTrackVector->push_back(*static_cast<genfit::Track*>(genfitTrackArray->At(iTrack)));
+         }
+
+         /*auto genfitTracks_ = fGenfitTrackArray->GetEntriesFast();   
+
+         for(auto iTrack=0;iTrack<genfitTracks_;++iTrack){
+		 
+                 auto trackTest = *static_cast<genfit::Track*>(fGenfitTrackArray->At(iTrack));
+                 trackTest.Print();
+                 genfit::MeasuredStateOnPlane fitState = trackTest.getFittedState();
+                 fitState.Print();
+         } */      
+
+        
+
+    }catch(std::exception& e){
+         std::cout<<" "<< e.what()<<"\n";
+    }
+
+     
 
 }
 

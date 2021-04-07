@@ -76,6 +76,13 @@ ATFITTER::ATGenfit::ATGenfit()
 
 ATFITTER::ATGenfit::~ATGenfit()
 {
+      delete fKalmanFitter;
+      delete fGenfitTrackArray;
+      delete fHitClusterArray;
+      delete fMeasurementProducer;
+      delete fMeasurementFactory;
+      delete fPDGCandidateArray;
+
 
 }
 
@@ -93,11 +100,16 @@ void ATFITTER::ATGenfit::SetMaxIterations(Int_t value) {
   fKalmanFitter -> setMaxIterations(value);
 }
 
+TClonesArray* ATFITTER::ATGenfit::GetGenfitTrackArray()
+{
+  return fGenfitTrackArray;
+}
 bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change return value
 {
 
   
-  
+  std::vector<genfit::Track> genfitTrackArray;   
+
   std::vector<ATTrack>& patternTrackCand =  patternEvent.GetTrackCand();
 
 
@@ -106,6 +118,11 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
   for(auto track : patternTrackCand)
   {
 	auto hitClusterArray = track.GetHitClusterArray();
+
+         TVector3 pos_res;
+         TVector3 mom_res;
+         TMatrixDSym cov_res;
+
 
 
         if(hitClusterArray->size()>3 && !track.GetIsNoise()){// TODO Check minimum number of clusters
@@ -140,12 +157,14 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
   
         
                   //Initial parameters from pattern recognition. For the moment, I just hardcode the paramters for a specific case. Momentum will be determined from BRho.
-                  //Test case 12Be+p elastic 15A MeV, 57.9 deg, 12 MeV, 2 T, 0.50215 Tm, mometum 0.150541
-		  Double_t theta  = 57.9*TMath::DegToRad();//track->GetGeoTheta();
+                  //Test case 12Be+p elastic 15A MeV, 60.5 deg, 12 MeV, 2 T, 0.50215 Tm, mometum 0.150541
+                  //                                    71.619 deg, 5.00336 MeV, 0.32364 Tm, 0.0970261 MeV/c     
+                  //                                   75.8167 deg, 3.01889 MeV, 0.25126 Tm, 0.753272 MeV/c            
+		  Double_t theta  = 75.8167*TMath::DegToRad();//track->GetGeoTheta();
                   Double_t radius = 0.0;//track->GetGeoRadius();
 		  Double_t phi    = 0.0*TMath::DegToRad();//track->GetGeoPhi();
                  
-		  Double_t brho = 0.50215; //12 MeV proton
+		  Double_t brho = 0.25126; //12 MeV proton
                   Double_t p_mass = 1.00727647; //amu
                   Int_t p_Z = 1;
 
@@ -157,7 +176,7 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
                   trackCand.setCovSeed(covSeed);
   		  trackCand.setPosMomSeed(posSeed, momSeed,p_Z);
                   trackCand.setPdgCode(2212);
-                  trackCand.Print();
+                  //trackCand.Print();
 
 
                   genfit::Track *gfTrack = new ((*fGenfitTrackArray)[fGenfitTrackArray -> GetEntriesFast()]) genfit::Track(trackCand, *fMeasurementFactory);
@@ -174,31 +193,39 @@ bool ATFITTER::ATGenfit::FitTracks(ATPatternEvent &patternEvent) //TODO Change r
 		  try {
 		    fitStatus = gfTrack -> getFitStatus(trackRep);
                     std::cout<<" Is fitted? "<<fitStatus->isFitted()<<"\n";
+                    std::cout<<" Is Converged ? "<<fitStatus->isFitConverged()<<"\n";
                     std::cout<<" Is Converged Partially? "<<fitStatus->isFitConvergedPartially()<<"\n";
+                    std::cout<<" Is pruned ? "<<fitStatus->isTrackPruned()<<"\n";         
                     fitStatus->Print();
 		  } catch (genfit::Exception &e) {
 		    //return 0;
 		  }
 
+
+		 
 		  genfit::MeasuredStateOnPlane fitState;
 	          try {
 		    fitState = gfTrack -> getFittedState();
-	          } catch (genfit::Exception &e) {}
+                    fitState.Print();
+                    //Fit result
+		    fitState.getPosMomCov(pos_res,mom_res,cov_res);
+                    std::cout<<" Total Momentum : "<<mom_res.Mag()<<" - Position : "<<pos_res.X()<<"  "<<pos_res.Y()<<"  "<<pos_res.Z()<<"\n";
+	          } catch (genfit::Exception &e) {}         
 
-		  
-	         
+
+	          //gfTrack ->Print();
 
 
 
-        }//ClusterArray
+        }//if hitClusterArray
 
-		 
 
   }//iTrack
 
     std::cout<<" End of GENFIT "<<"\n";
-    std::cout<<" 		     "<<"\n";
- 
+    std::cout<<" 	       "<<"\n";
+
+    return 0;
 
 
 }

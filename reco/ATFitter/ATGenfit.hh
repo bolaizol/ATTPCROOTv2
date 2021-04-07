@@ -40,6 +40,7 @@ class ATGenfit : public ATFitter
       void Init();
       void SetMinIterations(Int_t value);
       void SetMaxIterations(Int_t value);
+      TClonesArray* GetGenfitTrackArray();
 
   private:
 

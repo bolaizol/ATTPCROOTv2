@@ -114,6 +114,7 @@ class ATTrack : public TObject {
         Double_t sThetaMin;
         Double_t sEnerMin;
         TVector3 sPosMin;
+        TVector3 sMomMin;
         Double_t sBrhoMin;
         Double_t sBMin;
         Double_t sPhiMin;

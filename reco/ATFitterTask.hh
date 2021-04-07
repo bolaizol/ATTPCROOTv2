@@ -28,8 +28,10 @@
 #include "MeasurementFactory.h"
 #include "MeasurementProducer.h"
 #include "EventDisplay.h"
-
+//ROOT classes
 #include "TClonesArray.h" 
+
+#include <exception>
 
 class ATFitterTask : public FairTask {
 
@@ -54,6 +56,9 @@ class ATFitterTask : public FairTask {
     TClonesArray *fPatternEventArray;
     ATFITTER::ATFitter *fFitter;
     Int_t fFitterAlgorithm;
+
+    TClonesArray *fGenfitTrackArray;
+    std::vector<genfit::Track> *fGenfitTrackVector;
 
     ClassDef(ATFitterTask, 1);
 };

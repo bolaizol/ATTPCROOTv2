@@ -64,8 +64,8 @@ ATSpacepointMeasurement::ATSpacepointMeasurement(const ATHitCluster *detHit, con
 
   fCharge = detHit -> GetCharge();
 
-  std::cout<<" ATSpacepointMeasurement::ATSpacepointMeasurement "<<"\n";
-  std::cout<<rawHitCoords_(0)<<"	"<<rawHitCoords_(1)<<"	  "<<rawHitCoords_(2)<<"	"<<fCharge<<"	"<<detId_<<"	"<<hitId_<<"\n"; 
+  //std::cout<<" ATSpacepointMeasurement::ATSpacepointMeasurement "<<"\n";
+  //std::cout<<rawHitCoords_(0)<<"	"<<rawHitCoords_(1)<<"	  "<<rawHitCoords_(2)<<"	"<<fCharge<<"	"<<detId_<<"	"<<hitId_<<"\n"; 
 
   this -> initG();
 }
